@@ -9,17 +9,17 @@ contract SupplyChain {
   // <skuCount>
   uint public skuCount = 0;
   // <items mapping>
-  mapping (address => Item) public items;
+  mapping (uint => Item) public items;
   // <enum State: ForSale, Sold, Shipped, Received>
   enum State {ForSale, Sold, Shipped, Received }
   // <struct Item: name, sku, price, state, seller, and buyer>
   struct Item {
       bytes32 name;
-      bytes32 sku;
+      uint sku;
       uint price;
       State state;
       address seller;
-      address buyer;
+      address payable buyer;
   }
   /* 
    * Events
@@ -59,9 +59,10 @@ contract SupplyChain {
   modifier checkValue(uint _sku) {
     //refund them after pay for item (why it is before, _ checks for logic before func)
     _;
-    // uint _price = items[_sku].price;
-    // uint amountToRefund = msg.value - _price;
-    // items[_sku].buyer.transfer(amountToRefund);
+    uint _price = items[_sku].price;
+    uint amountToRefund = msg.value - _price;
+    items[_sku].buyer.transfer(amountToRefund);
+    
   }
 
   // For each of the following modifiers, use what you learned about modifiers
