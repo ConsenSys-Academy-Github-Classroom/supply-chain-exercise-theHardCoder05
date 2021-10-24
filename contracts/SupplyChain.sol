@@ -4,7 +4,7 @@ pragma solidity >=0.5.16 <0.9.0;
 contract SupplyChain {
 
   // <owner>
-  address public owner = msg.sender;
+  address public owner;
 
   // <skuCount>
   uint public skuCount = 0;
@@ -14,11 +14,11 @@ contract SupplyChain {
   enum State {ForSale, Sold, Shipped, Received }
   // <struct Item: name, sku, price, state, seller, and buyer>
   struct Item {
-      bytes32 name;
+      string name;
       uint sku;
       uint price;
       State state;
-      address seller;
+      address payable seller;
       address payable buyer;
   }
   /* 
@@ -26,13 +26,13 @@ contract SupplyChain {
    */
  
   // <LogForSale event: sku arg>
-  event LogForSale(bytes32 sku);
+  event LogForSale(uint sku);
   // <LogSold event: sku arg>
-  event LogSold(bytes32 sku);
+  event LogSold(uint sku);
   // <LogShipped event: sku arg>
-  event LogShipped(bytes32 sku);
+  event LogShipped(uint sku);
   // <LogReceived event: sku arg>
-  event LogReceived(bytes32 sku);
+  event LogReceived(uint sku);
 
   /* 
    * Modifiers
@@ -73,35 +73,55 @@ contract SupplyChain {
   // that an Item is for sale. Hint: What item properties will be non-zero when
   // an Item has been added?
 
-  // modifier forSale
-  // modifier sold(uint _sku) 
-  // modifier shipped(uint _sku) 
-  // modifier received(uint _sku) 
+   modifier forSale(uint _sku) {
+    
+    require(items[_sku].state == State.ForSale);
+    require(items[_sku].sku == _sku);
+    _;
+
+   }
+  modifier sold(uint _sku) {
+    require(items[_sku].state == State.Sold);
+    require(items[_sku].sku == _sku);
+    _;
+  }
+  modifier shipped(uint _sku) {
+    require(items[_sku].state == State.Shipped);
+    require(items[_sku].sku == _sku);
+    _;
+  }
+  modifier received(uint _sku) {
+    require(items[_sku].state == State.Received);
+    require(items[_sku].sku == _sku);
+    _;
+  }
 
   constructor() public {
     // 1. Set the owner to the transaction sender
+    owner == msg.sender;
     // 2. Initialize the sku count to 0. Question, is this necessary?
+    
   }
 
-  function addItem(string memory _name, uint _price) public returns (bool) {
+  function addItem(string memory _name, uint _price, address payable _buyer, address payable _seller) public returns (bool) {
     // 1. Create a new item and put in array
     // 2. Increment the skuCount by one
     // 3. Emit the appropriate event
     // 4. return true
 
     // hint:
-    // items[skuCount] = Item({
-    //  name: _name, 
-    //  sku: skuCount, 
-    //  price: _price, 
-    //  state: State.ForSale, 
-    //  seller: msg.sender, 
-    //  buyer: address(0)
-    //});
-    //
-    //skuCount = skuCount + 1;
-    // emit LogForSale(skuCount);
-    // return true;
+    items[skuCount] = Item({
+     name: _name, 
+     sku: skuCount, 
+     price: _price, 
+     state: State.ForSale, 
+     seller: _seller, 
+     buyer: _buyer
+    });
+    
+    skuCount = skuCount + 1;
+    emit LogForSale(skuCount);
+    return true;
   }
 
   // Implement this buyItem function. 
