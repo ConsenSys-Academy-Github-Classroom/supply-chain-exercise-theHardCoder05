@@ -103,7 +103,7 @@ contract SupplyChain {
     
   }
 
-  function addItem(string memory _name, uint _price, address payable _buyer, address payable _seller) public returns (bool) {
+  function addItem(string memory _name, uint _price) public returns (bool) {
     // 1. Create a new item and put in array
     // 2. Increment the skuCount by one
     // 3. Emit the appropriate event
@@ -115,8 +115,8 @@ contract SupplyChain {
      sku: skuCount, 
      price: _price, 
      state: State.ForSale, 
-     seller: _seller, 
-     buyer: _buyer
+     seller: msg.sender, 
+     buyer: address(0)
     });
     
     skuCount = skuCount + 1;
@@ -135,7 +135,9 @@ contract SupplyChain {
   //    - check the value after the function is called to make 
   //      sure the buyer is refunded any excess ether sent. 
   // 6. call the event associated with this function!
-  function buyItem(uint sku) public {}
+  function buyItem(uint sku) payable public sold() paidEnough() {
+
+  }
 
   // 1. Add modifiers to check:
   //    - the item is sold already 
