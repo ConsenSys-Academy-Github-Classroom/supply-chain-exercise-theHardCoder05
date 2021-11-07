@@ -135,8 +135,10 @@ contract SupplyChain {
   //    - check the value after the function is called to make 
   //      sure the buyer is refunded any excess ether sent. 
   // 6. call the event associated with this function!
-  function buyItem(uint sku) payable public sold() paidEnough() {
-
+  function buyItem(uint sku) payable public forSale(sku) paidEnough(msg.value) {
+    items[sku].buyer = msg.sender;
+    items[sku].state = State.Sold;
+    emit LogSold(sku);
   }
 
   // 1. Add modifiers to check:
@@ -144,7 +146,10 @@ contract SupplyChain {
   //    - the person calling this function is the seller. 
   // 2. Change the state of the item to shipped. 
   // 3. call the event associated with this function!
-  function shipItem(uint sku) public {}
+  function shipItem(uint sku) public sold(sku) verifyCaller(msg.sender) {
+    items[sku].state = State.Shipped;
+    emit LogShipped(sku);
+  }
 
   // 1. Add modifiers to check 
   //    - the item is shipped already 
